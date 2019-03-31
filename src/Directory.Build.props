@@ -7,7 +7,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <DebugType>portable</DebugType>
     <DebugSymbols>True</DebugSymbols>
-    <RepositoryName>RepoName</RepositoryName>
+    <RepositoryName>RegexMatchValues</RepositoryName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://ejball.com/$(RepositoryName)</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/ejball/$(RepositoryName)/blob/master/VersionHistory.md#released</PackageReleaseNotes>
