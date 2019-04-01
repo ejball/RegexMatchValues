@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Faithlife.Reflection;
@@ -8,7 +9,6 @@ namespace RegexMatchValues
 	/// <summary>
 	/// Extension methods for extracting values from regular expression matches.
 	/// </summary>
-	/// <remarks>See the library documentation for a detailed list of supported types.</remarks>
 	public static class RegexMatchExtensions
 	{
 		/// <summary>
@@ -20,37 +20,42 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		public static bool TryGet<T>(this Match match, out T value)
 		{
-			if (!match.Success)
+			object result = null;
+
+			if (match.Success)
+			{
+				var type = typeof(T);
+				if (TupleInfo.IsTupleType(type))
+				{
+					var tupleInfo = TupleInfo.GetInfo(type);
+					var tupleTypes = tupleInfo.ItemTypes;
+					var count = tupleTypes.Count;
+					if (count < 2)
+						throw new InvalidOperationException($"Tuple must have at least two types: {type.FullName}");
+					if (match.Groups.Count < count + 1)
+						throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
+
+					var items = new object[count];
+					for (int index = 0; index < count; index++)
+						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
+					result = tupleInfo.CreateNew(items);
+				}
+				else
+				{
+					result = ConvertGroup(match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0], type);
+				}
+			}
+
+			if (result == null)
 			{
 				value = default;
 				return false;
 			}
-
-			var type = typeof(T);
-			object result;
-
-			if (TupleInfo.IsTupleType(type))
-			{
-				var tupleInfo = TupleInfo.GetInfo(type);
-				var tupleTypes = tupleInfo.ItemTypes;
-				var count = tupleTypes.Count;
-				if (count < 2)
-					throw new InvalidOperationException($"Tuple must have at least two types: {type.FullName}");
-				if (match.Groups.Count < count + 1)
-					throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
-
-				var items = new object[count];
-				for (int index = 0; index < count; index++)
-					items[index] = ConvertSimple(tupleTypes[index], match.Groups[index + 1]);
-				result = tupleInfo.CreateNew(items);
-			}
 			else
 			{
-				result = ConvertSimple(type, match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0]);
+				value = (T) result;
+				return true;
 			}
-
-			value = (T) result;
-			return true;
 		}
 
 		/// <summary>
@@ -61,52 +66,81 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
 		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
 
-		private static object ConvertSimple(Type type, Group group)
+		private static object ConvertGroup(Group group, Type type)
 		{
-			if (type == typeof(bool))
-				return group.Success;
-			else if (type == typeof(Group))
+			if (type == typeof(Group))
 				return group;
-			else if (type.IsArray)
-				return group.Success ? ConvertArray(type.GetElementType(), group) : null;
-			else
-				return ConvertSimple(type, group, group.Success);
+
+			if (!group.Success)
+				return null;
+
+			if (type.IsArray)
+				return ConvertCaptures(group.Captures, type.GetElementType());
+
+			return ConvertCapture(group, type);
 		}
 
-		private static object ConvertArray(Type itemType, Group group)
+		private static object ConvertCaptures(CaptureCollection captures, Type type)
 		{
-			var captures = group.Captures;
 			int count = captures.Count;
-			var array = Array.CreateInstance(itemType, count);
+			var array = Array.CreateInstance(type, count);
 			for (int index = 0; index < count; index++)
-				array.SetValue(ConvertSimple(itemType, captures[index]), index);
+				array.SetValue(ConvertCapture(captures[index], type), index);
 			return array;
 		}
 
-		private static object ConvertSimple(Type type, Capture capture, bool success = true)
+		private static object ConvertCapture(Capture capture, Type type)
 		{
+			if (type == typeof(Capture))
+				return capture;
+
+			string value = capture.Value;
 			if (type == typeof(string))
-				return success ? capture.Value : null;
-			else if (type == typeof(int))
-				return success ? int.Parse(capture.Value, CultureInfo.InvariantCulture) : default(int);
-			else if (type == typeof(int?))
-				return success ? int.Parse(capture.Value, CultureInfo.InvariantCulture) : default(int?);
-			else if (type == typeof(long))
-				return success ? long.Parse(capture.Value, CultureInfo.InvariantCulture) : default(long);
-			else if (type == typeof(long?))
-				return success ? long.Parse(capture.Value, CultureInfo.InvariantCulture) : default(long?);
-			else if (type == typeof(uint))
-				return success ? uint.Parse(capture.Value, CultureInfo.InvariantCulture) : default(uint);
-			else if (type == typeof(uint?))
-				return success ? uint.Parse(capture.Value, CultureInfo.InvariantCulture) : default(uint?);
-			else if (type == typeof(ulong))
-				return success ? ulong.Parse(capture.Value, CultureInfo.InvariantCulture) : default(ulong);
-			else if (type == typeof(ulong?))
-				return success ? ulong.Parse(capture.Value, CultureInfo.InvariantCulture) : default(ulong?);
-			else if (type == typeof(Capture))
-				return success ? capture : null;
-			else
-				throw new InvalidOperationException($"Type not supported: {type.FullName}");
+				return value;
+
+			if (Nullable.GetUnderlyingType(type) is Type underlyingType)
+				type = underlyingType;
+
+			if (type == typeof(bool))
+				return true;
+
+			if (string.IsNullOrWhiteSpace(value))
+				return null;
+
+			if (s_parsers.Value.TryGetValue(type, out var parser))
+				return parser(value, CultureInfo.InvariantCulture);
+
+			if (type.IsEnum)
+				return Enum.Parse(type, value, ignoreCase: true);
+
+			throw new InvalidOperationException($"Type not supported: {type.FullName}");
+		}
+
+		private static readonly Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>> s_parsers =
+			new Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>>(CreateParsers);
+
+		private static IReadOnlyDictionary<Type, Func<string, CultureInfo, object>> CreateParsers()
+		{
+			var parsers = new Dictionary<Type, Func<string, CultureInfo, object>>();
+
+			void addParser1<T>(Func<string, T> parser) => parsers.Add(typeof(T), (v, _) => parser(v));
+			void addParser2<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c));
+
+			addParser1(bool.Parse);
+			addParser2(byte.Parse);
+			addParser2(sbyte.Parse);
+			addParser2(short.Parse);
+			addParser2(ushort.Parse);
+			addParser2(int.Parse);
+			addParser2(uint.Parse);
+			addParser2(long.Parse);
+			addParser2(ulong.Parse);
+			addParser2(float.Parse);
+			addParser2(double.Parse);
+			addParser2(decimal.Parse);
+			addParser1(Guid.Parse);
+
+			return parsers;
 		}
 	}
 }

@@ -28,6 +28,18 @@ namespace RegexMatchValues.Tests
 		}
 
 		[Test]
+		public void StringEmptyMatch()
+		{
+			Regex.Match("hello there", @"l()l").Get<string>().Should().Be("");
+		}
+
+		[Test]
+		public void StringWhitespaceMatch()
+		{
+			Regex.Match("hello there", @"\s+").Get<string>().Should().Be(" ");
+		}
+
+		[Test]
 		public void IntegerFailedMatch()
 		{
 			var text = "number";
@@ -63,6 +75,39 @@ namespace RegexMatchValues.Tests
 		}
 
 		[Test]
+		public void IntegerFormatException()
+		{
+			Invoking(() => Regex.Match("x 0xDEAD x", @"x(.*)x").Get<int?>()).Should().Throw<FormatException>();
+		}
+
+		[Test]
+		public void IntegerEmptyNoThrow()
+		{
+			Regex.Match("xx", @"x(.*)x").Get<int>().Should().Be(0);
+			Regex.Match("xx", @"x(.*)x").Get<int?>().Should().Be(null);
+		}
+
+		[Test]
+		public void IntegerWhitespaceNoThrow()
+		{
+			Regex.Match("x x", @"x(.*)x").Get<int>().Should().Be(0);
+			Regex.Match("x x", @"x(.*)x").Get<int?>().Should().Be(null);
+		}
+
+		[Test]
+		public void IntegerWhitespaceAllowed()
+		{
+			Regex.Match("x 42 x", @"x(.*)x").Get<int>().Should().Be(42);
+			Regex.Match("x 42 x", @"x(.*)x").Get<int?>().Should().Be(42);
+		}
+
+		[Test]
+		public void EnumParse()
+		{
+			Regex.Match("x righttoleft x", @"x(.*)x").Get<RegexOptions?>().Should().Be(RegexOptions.RightToLeft);
+		}
+
+		[Test]
 		public void ThreeTupleMatch()
 		{
 			var match = Regex.Match("on 22 March 2019", @"([0-9]+)\s+([A-Z][a-z]+)\s+([0-9]+)");
@@ -74,8 +119,8 @@ namespace RegexMatchValues.Tests
 		public void TupleNoMatch()
 		{
 			var match = Regex.Match("nope", "(a) (b)");
-			match.Get<(string, int)>().Should().Be((default(string), 0));
-			match.Get<(string, int?)>().Should().Be((default(string), default(int?)));
+			match.Get<(string, int)>().Should().Be((null, 0));
+			match.Get<(string, int?)>().Should().Be((null, null));
 			match.Get<(string, int)?>().Should().BeNull();
 		}
 
