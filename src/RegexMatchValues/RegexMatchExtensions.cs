@@ -19,16 +19,18 @@ namespace RegexMatchValues
 	/// <para>If a group has multiple captures and the target type is an array, each
 	/// capture is converted to an item in the returned array.</para>
 	/// <para>If the target type is <c>string</c>, the text of the group/capture is returned.</para>
-	/// <para>If the target type is <c>Group</c> or <c>Capture</c>, the corresponding object
-	/// of that type for the group/capture is returned.</para>
 	/// <para>If the target type is <c>bool</c>, <c>true</c> is returned (unless the group
 	/// was not successful, per above).</para>
 	/// <para>If the target type is a numeric type or <c>Guid</c>, the text of the group/capture
 	/// is parsed into that type using the invariant culture and default settings, which allow leading and
 	/// trailing whitespace. If the text is empty or only whitespace, the group is treated as having failed.
-	/// If the text cannot be parsed into that type, the corresponding <c>FormatException</c> is thrown.</para>
+	/// If the text cannot be parsed into that type, the corresponding <see cref="FormatException"/>
+	/// is thrown.</para>
 	/// <para>If the target type is an enumerated type, the text of the group/capture is parsed as that type,
 	/// ignoring case.</para>
+	/// <para>If the target type is <c>Group</c> or <c>Capture</c>, the corresponding object
+	/// of that type for the group/capture is returned.</para>
+	/// <para>If an unsupported type is used, <see cref="InvalidOperationException"/> is thrown.</para>
 	/// </remarks>
 	public static class RegexMatchExtensions
 	{
