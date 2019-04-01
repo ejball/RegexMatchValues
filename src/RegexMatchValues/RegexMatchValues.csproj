@@ -3,8 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>RegexMatchValues class library.</Description>
-    <PackageTags></PackageTags>
+    <Description>Converts regular expression matches to strong types.</Description>
+    <PackageTags>regex regular expression match group capture convert</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
