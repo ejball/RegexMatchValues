@@ -35,6 +35,14 @@ namespace RegexMatchValues
 	public static class RegexMatchExtensions
 	{
 		/// <summary>
+		/// Returns a value of the specified type for the match.
+		/// </summary>
+		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
+		/// <param name="match">The match.</param>
+		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
+		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
+
+		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
 		/// </summary>
 		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
@@ -80,14 +88,6 @@ namespace RegexMatchValues
 				return true;
 			}
 		}
-
-		/// <summary>
-		/// Returns a value of the specified type for the match.
-		/// </summary>
-		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
-		/// <param name="match">The match.</param>
-		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
-		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
 
 		private static object ConvertGroup(Group group, Type type)
 		{
