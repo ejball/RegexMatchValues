@@ -11,7 +11,7 @@ public static class RegexMatchExtensions
 | name | description |
 | --- | --- |
 | static [Get&lt;T&gt;](RegexMatchExtensions/Get.md)(…) | Returns a value of the specified type for the match. |
-| static [TryGet&lt;T&gt;](RegexMatchExtensions/TryGet.md)(…) |  |
+| static [TryGet&lt;T&gt;](RegexMatchExtensions/TryGet.md)(…) | Attempts to return a value of the specified type for the match. |
 
 ## Remarks
 
@@ -27,13 +27,15 @@ If a group has multiple captures and the target type is an array, each capture i
 
 If the target type is `string`, the text of the group/capture is returned.
 
-If the target type is `Group` or `Capture`, the corresponding object of that type for the group/capture is returned.
-
 If the target type is `bool`, `true` is returned (unless the group was not successful, per above).
 
-If the target type is a numeric type or `Guid`, the text of the group/capture is parsed into that type using the invariant culture and default settings, which allow leading and trailing whitespace. If the text is empty or only whitespace, the group is treated as having failed. If the text cannot be parsed into that type, the corresponding `FormatException` is thrown.
+If the target type is a numeric type or `Guid`, the text of the group/capture is parsed into that type using the invariant culture and default settings, which allow leading and trailing whitespace. If the text is empty or only whitespace, the group is treated as having failed. If the text cannot be parsed into that type, the corresponding FormatException is thrown.
 
 If the target type is an enumerated type, the text of the group/capture is parsed as that type, ignoring case.
+
+If the target type is `Group` or `Capture`, the corresponding object of that type for the group/capture is returned.
+
+If an unsupported type is used, InvalidOperationException is thrown.
 
 ## See Also
 

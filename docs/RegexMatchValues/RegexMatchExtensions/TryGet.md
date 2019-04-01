@@ -1,8 +1,20 @@
 # RegexMatchExtensions.TryGet&lt;T&gt; method
 
+Attempts to return a value of the specified type for the match.
+
 ```csharp
 public static bool TryGet<T>(this Match match, out T value)
 ```
+
+| parameter | description |
+| --- | --- |
+| T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
+| match | The match. |
+| value | The returned value. |
+
+## Return Value
+
+True if the match was successful; false otherwise.
 
 ## See Also
 
