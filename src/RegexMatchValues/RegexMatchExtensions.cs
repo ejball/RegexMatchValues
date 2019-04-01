@@ -144,22 +144,20 @@ namespace RegexMatchValues
 		{
 			var parsers = new Dictionary<Type, Func<string, CultureInfo, object>>();
 
-			void addParser1<T>(Func<string, T> parser) => parsers.Add(typeof(T), (v, _) => parser(v));
-			void addParser2<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c));
+			void addParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c));
 
-			addParser1(bool.Parse);
-			addParser2(byte.Parse);
-			addParser2(sbyte.Parse);
-			addParser2(short.Parse);
-			addParser2(ushort.Parse);
-			addParser2(int.Parse);
-			addParser2(uint.Parse);
-			addParser2(long.Parse);
-			addParser2(ulong.Parse);
-			addParser2(float.Parse);
-			addParser2(double.Parse);
-			addParser2(decimal.Parse);
-			addParser1(Guid.Parse);
+			addParser(byte.Parse);
+			addParser(sbyte.Parse);
+			addParser(short.Parse);
+			addParser(ushort.Parse);
+			addParser(int.Parse);
+			addParser(uint.Parse);
+			addParser(long.Parse);
+			addParser(ulong.Parse);
+			addParser(float.Parse);
+			addParser(double.Parse);
+			addParser(decimal.Parse);
+			addParser((v, _) => Guid.Parse(v));
 
 			return parsers;
 		}
