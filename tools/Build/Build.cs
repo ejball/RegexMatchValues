@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using Faithlife.Build;
-using LibGit2Sharp;
 
 internal static class Build
 {
@@ -16,17 +14,6 @@ internal static class Build
 					GitAuthor = new GitAuthorInfo("ejball", "ejball@gmail.com"),
 					SourceCodeUrl = "https://github.com/ejball/RegexMatchValues/tree/master/src",
 				},
-			});
-
-		build.Target("build")
-			.Does(() =>
-			{
-				using (var repository = new Repository("."))
-				{
-					Console.WriteLine("HEAD: " + repository.Head.FriendlyName);
-					foreach (DictionaryEntry variable in Environment.GetEnvironmentVariables())
-						Console.WriteLine(variable.Key + "=" + variable.Value);
-				}
 			});
 
 		build.Target("default")
