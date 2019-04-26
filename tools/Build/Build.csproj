@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Faithlife.Build" Version="0.9.0-rc8" />
+    <PackageReference Include="Faithlife.Build" Version="0.9.0-rc9" />
   </ItemGroup>
 
 </Project>
