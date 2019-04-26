@@ -15,6 +15,13 @@ public static T Get<T>(this Match match)
 
 The corresponding value if the match was successful; `default(T)` otherwise.
 
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The specified type is not supported. |
+
 ## See Also
 
 * class [RegexMatchExtensions](../RegexMatchExtensions.md)

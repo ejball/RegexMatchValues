@@ -16,6 +16,13 @@ public static bool TryGet<T>(this Match match, out T value)
 
 True if the match was successful; false otherwise.
 
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The specified type is not supported. |
+
 ## See Also
 
 * class [RegexMatchExtensions](../RegexMatchExtensions.md)
