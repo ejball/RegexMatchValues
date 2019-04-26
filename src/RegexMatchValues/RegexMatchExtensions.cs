@@ -40,6 +40,8 @@ namespace RegexMatchValues
 		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
 		/// <param name="match">The match.</param>
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
 
 		/// <summary>
@@ -49,6 +51,8 @@ namespace RegexMatchValues
 		/// <param name="match">The match.</param>
 		/// <param name="value">The returned value.</param>
 		/// <returns>True if the match was successful; false otherwise.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 		public static bool TryGet<T>(this Match match, out T value)
 		{
 			object result = null;

@@ -10,13 +10,10 @@ internal static class Build
 			{
 				DocsSettings = new DotNetDocsSettings
 				{
-					GitLogin = new GitLoginInfo("ejball", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
+					GitLogin = new GitLoginInfo("ejball", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD")),
 					GitAuthor = new GitAuthorInfo("ejball", "ejball@gmail.com"),
 					SourceCodeUrl = "https://github.com/ejball/RegexMatchValues/tree/master/src",
 				},
 			});
-
-		build.Target("default")
-			.DependsOn("build");
 	});
 }
