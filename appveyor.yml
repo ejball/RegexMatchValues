@@ -1,6 +1,6 @@
 version: '{build}'
 image:
-- Visual Studio 2017
+- Visual Studio 2019
 - Ubuntu
 environment:
   NUGET_API_KEY:
@@ -8,8 +8,6 @@ environment:
   BUILD_BOT_PASSWORD:
     secure: U2EQbBdxNIC2FL8YeOP3bVixlZ4xLBdN71Szraw+ATqAhYZwEd6JCjCJZLJPu9kN
 build_script:
-- cmd: .\build.cmd publish "--trigger=%APPVEYOR_REPO_TAG_NAME%"
+- cmd: .\build.cmd publish "--trigger=%APPVEYOR_REPO_TAG_NAME%" "--build-number=%APPVEYOR_BUILD_NUMBER%"
 - sh: ./build.sh package
 test: off
-artifacts:
-- path: 'release\*.nupkg'
