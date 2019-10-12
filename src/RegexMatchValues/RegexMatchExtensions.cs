@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Faithlife.Reflection;
@@ -42,6 +43,7 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
+		[return: MaybeNull]
 		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
 
 		/// <summary>
@@ -53,9 +55,9 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		public static bool TryGet<T>(this Match match, out T value)
+		public static bool TryGet<T>(this Match match, [MaybeNullWhen(false)] out T value)
 		{
-			object result = null;
+			object? result = null;
 
 			if (match.Success)
 			{
@@ -70,7 +72,7 @@ namespace RegexMatchValues
 					if (match.Groups.Count < count + 1)
 						throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
 
-					var items = new object[count];
+					var items = new object?[count];
 					for (int index = 0; index < count; index++)
 						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
 					result = tupleInfo.CreateNew(items);
@@ -83,7 +85,7 @@ namespace RegexMatchValues
 
 			if (result == null)
 			{
-				value = default;
+				value = default!;
 				return false;
 			}
 			else
@@ -93,7 +95,7 @@ namespace RegexMatchValues
 			}
 		}
 
-		private static object ConvertGroup(Group group, Type type)
+		private static object? ConvertGroup(Group group, Type type)
 		{
 			if (type == typeof(Group))
 				return group;
@@ -116,7 +118,7 @@ namespace RegexMatchValues
 			return array;
 		}
 
-		private static object ConvertCapture(Capture capture, Type type)
+		private static object? ConvertCapture(Capture capture, Type type)
 		{
 			if (type == typeof(Capture))
 				return capture;
@@ -125,8 +127,7 @@ namespace RegexMatchValues
 			if (type == typeof(string))
 				return value;
 
-			if (Nullable.GetUnderlyingType(type) is Type underlyingType)
-				type = underlyingType;
+			type = Nullable.GetUnderlyingType(type) ?? type;
 
 			if (type == typeof(bool))
 				return true;
@@ -150,7 +151,7 @@ namespace RegexMatchValues
 		{
 			var parsers = new Dictionary<Type, Func<string, CultureInfo, object>>();
 
-			void addParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c));
+			void addParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c)!);
 
 			addParser(byte.Parse);
 			addParser(sbyte.Parse);

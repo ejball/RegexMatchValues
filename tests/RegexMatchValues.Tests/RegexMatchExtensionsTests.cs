@@ -119,9 +119,9 @@ namespace RegexMatchValues.Tests
 		public void TupleNoMatch()
 		{
 			var match = Regex.Match("nope", "(a) (b)");
-			match.Get<(string, int)>().Should().Be((null, 0));
-			match.Get<(string, int?)>().Should().Be((null, null));
-			match.Get<(string, int)?>().Should().BeNull();
+			match.Get<(string?, int)>().Should().Be((null, 0));
+			match.Get<(string?, int?)>().Should().Be((null, null));
+			match.Get<(string?, int)?>().Should().BeNull();
 		}
 
 		[Test]
@@ -161,14 +161,14 @@ namespace RegexMatchValues.Tests
 		[Test]
 		public void GetGroup()
 		{
-			Regex.Match("1 2 3", @"(\d) (\d) (\d)").Get<Group>().Value.Should().Be("1");
+			Regex.Match("1 2 3", @"(\d) (\d) (\d)").Get<Group>()!.Value.Should().Be("1");
 			Regex.Match("1 2 3", @"(\d) (\d) (\d)").Get<(string, Group)>().Item2.Value.Should().Be("2");
 		}
 
 		[Test]
 		public void OptionalGroups()
 		{
-			Regex.Match("ac", @"(a)(b)?(c)").Get<(string, string, string)>().Should().Be(("a", null, "c"));
+			Regex.Match("ac", @"(a)(b)?(c)").Get<(string, string?, string)>().Should().Be(("a", null, "c"));
 			Regex.Match("ac", @"(a)(b?)(c)").Get<(string, string, string)>().Should().Be(("a", "", "c"));
 		}
 
