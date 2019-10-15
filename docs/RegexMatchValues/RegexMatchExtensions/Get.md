@@ -13,14 +13,14 @@ public static T Get<T>(this Match match)
 
 ## Return Value
 
-The corresponding value if the match was successful; `default(T)` otherwise.
+The corresponding value of the specified type.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
 | FormatException | The text of the capture cannot be parsed as the specified type. |
-| InvalidOperationException | The specified type is not supported. |
+| InvalidOperationException | The match failed, or the specified type is not supported. |
 
 ## See Also
 

@@ -1,4 +1,35 @@
-# RegexMatchExtensions.TryGet&lt;T&gt; method
+# RegexMatchExtensions.TryGet&lt;T&gt; method (1 of 2)
+
+Attempts to return a value of the specified type for the match.
+
+```csharp
+public static T TryGet<T>(this Match match)
+```
+
+| parameter | description |
+| --- | --- |
+| T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
+| match | The match. |
+
+## Return Value
+
+The corresponding value if the match was successful; `default(T)` otherwise.
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The specified type is not supported. |
+
+## See Also
+
+* class [RegexMatchExtensions](../RegexMatchExtensions.md)
+* namespace [RegexMatchValues](../../RegexMatchValues.md)
+
+---
+
+# RegexMatchExtensions.TryGet&lt;T&gt; method (2 of 2)
 
 Attempts to return a value of the specified type for the match.
 
