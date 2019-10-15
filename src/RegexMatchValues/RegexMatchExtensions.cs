@@ -24,7 +24,7 @@ namespace RegexMatchValues
 	/// was not successful, per above).</para>
 	/// <para>If the target type is a numeric type or <c>Guid</c>, the text of the group/capture
 	/// is parsed into that type using the invariant culture and default settings, which allow leading and
-	/// trailing whitespace. If the text is empty or only whitespace, the group is treated as having failed.
+	/// trailing whitespace. If the text is empty or only whitespace and the type is nullable, null is returned.
 	/// If the text cannot be parsed into that type, the corresponding <see cref="FormatException"/>
 	/// is thrown.</para>
 	/// <para>If the target type is an enumerated type, the text of the group/capture is parsed as that type,
@@ -40,11 +40,22 @@ namespace RegexMatchValues
 		/// </summary>
 		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
 		/// <param name="match">The match.</param>
+		/// <returns>The corresponding value of the specified type.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The match failed, or the specified type is not supported.</exception>
+		[return: MaybeNull]
+		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : throw new InvalidOperationException("Match failed.");
+
+		/// <summary>
+		/// Attempts to return a value of the specified type for the match.
+		/// </summary>
+		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
+		/// <param name="match">The match.</param>
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 		[return: MaybeNull]
-		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : default;
+		public static T TryGet<T>(this Match match) => match.TryGet(out T value) ? value : default;
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -55,10 +66,8 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		public static bool TryGet<T>(this Match match, [MaybeNullWhen(false)] out T value)
+		public static bool TryGet<T>(this Match match, [MaybeNull] out T value)
 		{
-			object? result = null;
-
 			if (match.Success)
 			{
 				var type = typeof(T);
@@ -75,23 +84,19 @@ namespace RegexMatchValues
 					var items = new object?[count];
 					for (int index = 0; index < count; index++)
 						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
-					result = tupleInfo.CreateNew(items);
+					value = (T) tupleInfo.CreateNew(items);
 				}
 				else
 				{
-					result = ConvertGroup(match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0], type);
+					value = (T) ConvertGroup(match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0], type)!;
 				}
-			}
 
-			if (result == null)
-			{
-				value = default!;
-				return false;
+				return true;
 			}
 			else
 			{
-				value = (T) result;
-				return true;
+				value = default!;
+				return false;
 			}
 		}
 
@@ -127,12 +132,22 @@ namespace RegexMatchValues
 			if (type == typeof(string))
 				return value;
 
-			type = Nullable.GetUnderlyingType(type) ?? type;
+			bool isNullable;
+			var underlyingType = Nullable.GetUnderlyingType(type);
+			if (underlyingType != null)
+			{
+				isNullable = true;
+				type = underlyingType;
+			}
+			else
+			{
+				isNullable = !type.IsValueType;
+			}
 
 			if (type == typeof(bool))
 				return true;
 
-			if (string.IsNullOrWhiteSpace(value))
+			if (isNullable && string.IsNullOrWhiteSpace(value))
 				return null;
 
 			if (s_parsers.Value.TryGetValue(type, out var parser))

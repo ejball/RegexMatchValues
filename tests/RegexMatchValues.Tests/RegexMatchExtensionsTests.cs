@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using NUnit.Framework;
+using static FluentAssertions.FluentActions;
 
 namespace RegexMatchValues.Tests
 {
@@ -12,7 +13,8 @@ namespace RegexMatchValues.Tests
 		[Test]
 		public void StringFailedMatch()
 		{
-			Regex.Match("expressions", "c+").Get<string>().Should().BeNull();
+			Regex.Match("expressions", "c+").TryGet<string>().Should().BeNull();
+			Invoking(() => Regex.Match("expressions", "c+").Get<string>()).Should().Throw<InvalidOperationException>();
 		}
 
 		[Test]
@@ -43,14 +45,22 @@ namespace RegexMatchValues.Tests
 		public void IntegerFailedMatch()
 		{
 			var text = "number";
-			s_signedIntegerRegex.Match(text).Get<int>().Should().Be(0);
-			s_signedIntegerRegex.Match(text).Get<int?>().Should().BeNull();
-			s_signedIntegerRegex.Match(text).Get<long>().Should().Be(0);
-			s_signedIntegerRegex.Match(text).Get<long?>().Should().BeNull();
-			s_unsignedIntegerRegex.Match(text).Get<uint>().Should().Be(0);
-			s_unsignedIntegerRegex.Match(text).Get<uint?>().Should().BeNull();
-			s_unsignedIntegerRegex.Match(text).Get<ulong>().Should().Be(0);
-			s_unsignedIntegerRegex.Match(text).Get<ulong?>().Should().BeNull();
+			s_signedIntegerRegex.Match(text).TryGet<int>().Should().Be(0);
+			s_signedIntegerRegex.Match(text).TryGet<int?>().Should().BeNull();
+			s_signedIntegerRegex.Match(text).TryGet<long>().Should().Be(0);
+			s_signedIntegerRegex.Match(text).TryGet<long?>().Should().BeNull();
+			s_unsignedIntegerRegex.Match(text).TryGet<uint>().Should().Be(0);
+			s_unsignedIntegerRegex.Match(text).TryGet<uint?>().Should().BeNull();
+			s_unsignedIntegerRegex.Match(text).TryGet<ulong>().Should().Be(0);
+			s_unsignedIntegerRegex.Match(text).TryGet<ulong?>().Should().BeNull();
+			Invoking(() => s_signedIntegerRegex.Match(text).Get<int>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_signedIntegerRegex.Match(text).Get<int?>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_signedIntegerRegex.Match(text).Get<long>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_signedIntegerRegex.Match(text).Get<long?>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_unsignedIntegerRegex.Match(text).Get<uint>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_unsignedIntegerRegex.Match(text).Get<uint?>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_unsignedIntegerRegex.Match(text).Get<ulong>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => s_unsignedIntegerRegex.Match(text).Get<ulong?>()).Should().Throw<InvalidOperationException>();
 		}
 
 		[Test]
@@ -81,21 +91,25 @@ namespace RegexMatchValues.Tests
 		}
 
 		[Test]
-		public void IntegerEmptyNoThrow()
+		public void IntegerEmpty()
 		{
-			Regex.Match("xx", @"x(.*)x").Get<int>().Should().Be(0);
+			Invoking(() => Regex.Match("xx", @"x(.*)x").Get<int>()).Should().Throw<FormatException>();
 			Regex.Match("xx", @"x(.*)x").Get<int?>().Should().Be(null);
+			Invoking(() => Regex.Match("xxx", @"x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
+			Regex.Match("xxx", @"x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
 		}
 
 		[Test]
-		public void IntegerWhitespaceNoThrow()
+		public void IntegerOnlyWhitespace()
 		{
-			Regex.Match("x x", @"x(.*)x").Get<int>().Should().Be(0);
+			Invoking(() => Regex.Match("x x", @"x(.*)x").Get<int>()).Should().Throw<FormatException>();
 			Regex.Match("x x", @"x(.*)x").Get<int?>().Should().Be(null);
+			Invoking(() => Regex.Match("x x x", @"x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
+			Regex.Match("x x x", @"x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
 		}
 
 		[Test]
-		public void IntegerWhitespaceAllowed()
+		public void IntegerWhitespaceTrimmed()
 		{
 			Regex.Match("x 42 x", @"x(.*)x").Get<int>().Should().Be(42);
 			Regex.Match("x 42 x", @"x(.*)x").Get<int?>().Should().Be(42);
@@ -119,9 +133,12 @@ namespace RegexMatchValues.Tests
 		public void TupleNoMatch()
 		{
 			var match = Regex.Match("nope", "(a) (b)");
-			match.Get<(string?, int)>().Should().Be((null, 0));
-			match.Get<(string?, int?)>().Should().Be((null, null));
-			match.Get<(string?, int)?>().Should().BeNull();
+			match.TryGet<(string?, int)>().Should().Be((null, 0));
+			match.TryGet<(string?, int?)>().Should().Be((null, null));
+			match.TryGet<(string?, int)?>().Should().BeNull();
+			Invoking(() => match.Get<(string?, int)>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => match.Get<(string?, int?)>()).Should().Throw<InvalidOperationException>();
+			Invoking(() => match.Get<(string?, int)?>()).Should().Throw<InvalidOperationException>();
 		}
 
 		[Test]
@@ -219,7 +236,5 @@ namespace RegexMatchValues.Tests
 
 		private static readonly Regex s_signedIntegerRegex = new Regex(@"[-0-9]+");
 		private static readonly Regex s_unsignedIntegerRegex = new Regex(@"[0-9]+");
-
-		private static Action Invoking(Action action) => action;
 	}
 }
