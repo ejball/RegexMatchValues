@@ -11,11 +11,10 @@ internal static class Build
 				NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
 				DocsSettings = new DotNetDocsSettings
 				{
-					GitLogin = new GitLoginInfo("ejball", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD")),
+					GitLogin = new GitLoginInfo("ejball", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
 					GitAuthor = new GitAuthorInfo("ejball", "ejball@gmail.com"),
 					SourceCodeUrl = "https://github.com/ejball/RegexMatchValues/tree/master/src",
 				},
-				SourceLinkSettings = SourceLinkSettings.Default,
 			});
 	});
 }
