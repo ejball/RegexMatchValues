@@ -30,6 +30,18 @@ namespace RegexMatchValues.Tests
 		}
 
 		[Test]
+		public void StringNamedGroupMatch()
+		{
+			Regex.Match("expressions", "s+(?'val'[aeiou]+)").Get<string>("val").Should().Be("io");
+		}
+
+		[Test]
+		public void StringWrongNameGroupMatch()
+		{
+			Regex.Match("expressions", "s+(?'val'[aeiou]+)").Get<string>("xyzzy").Should().BeNull();
+		}
+
+		[Test]
 		public void StringEmptyMatch()
 		{
 			Regex.Match("hello there", @"l()l").Get<string>().Should().Be("");
@@ -130,6 +142,14 @@ namespace RegexMatchValues.Tests
 		}
 
 		[Test]
+		public void NamedThreeTupleMatch()
+		{
+			var match = Regex.Match("on 22 March 2019", @"(?'day'[0-9]+)\s+(?'month'[A-Z][a-z]+)\s+(?'year'[0-9]+)");
+			match.Get<(string, int, long)>("month", "day", "year").Should().Be(("March", 22, 2019L));
+			match.Get<(string, int, long)?>("month", "day", "year").Should().Be(("March", 22, 2019L));
+		}
+
+		[Test]
 		public void TupleNoMatch()
 		{
 			var match = Regex.Match("nope", "(a) (b)");
@@ -159,6 +179,14 @@ namespace RegexMatchValues.Tests
 		{
 			Invoking(() => Regex.Match("type", "t+").Get<(string, string)>()).Should().Throw<InvalidOperationException>();
 			Invoking(() => Regex.Match("type", "(t+)").Get<(string, string)>()).Should().Throw<InvalidOperationException>();
+		}
+
+		[Test]
+		public void WrongGroupNameCount()
+		{
+			Invoking(() => Regex.Match("type", "(?'x't+)").Get<string>("x", "y")).Should().Throw<InvalidOperationException>();
+			Invoking(() => Regex.Match("type", "(?'x't+)").Get<(string, string)>("x")).Should().Throw<InvalidOperationException>();
+			Invoking(() => Regex.Match("type", "(?'x't+)").Get<(string, string)>("x", "x", "x")).Should().Throw<InvalidOperationException>();
 		}
 
 		[Test]
