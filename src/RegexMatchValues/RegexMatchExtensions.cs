@@ -43,8 +43,7 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value of the specified type.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The match failed, or the specified type is not supported.</exception>
-		[return: MaybeNull]
-		public static T Get<T>(this Match match) => match.TryGet(out T value) ? value : throw new InvalidOperationException("Match failed.");
+		public static T Get<T>(this Match match) => match.TryGet<T>(out var value) ? value! : throw new InvalidOperationException("Match failed.");
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -55,7 +54,7 @@ namespace RegexMatchValues
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 		[return: MaybeNull]
-		public static T TryGet<T>(this Match match) => match.TryGet(out T value) ? value : default;
+		public static T TryGet<T>(this Match match) => match.TryGet<T>(out var value) ? value : default;
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -82,7 +81,7 @@ namespace RegexMatchValues
 						throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
 
 					var items = new object?[count];
-					for (int index = 0; index < count; index++)
+					for (var index = 0; index < count; index++)
 						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
 					value = (T) tupleInfo.CreateNew(items);
 				}
@@ -109,16 +108,16 @@ namespace RegexMatchValues
 				return null;
 
 			if (type.IsArray)
-				return ConvertCaptures(group.Captures, type.GetElementType());
+				return ConvertCaptures(group.Captures, type.GetElementType()!);
 
 			return ConvertCapture(group, type);
 		}
 
 		private static object ConvertCaptures(CaptureCollection captures, Type type)
 		{
-			int count = captures.Count;
+			var count = captures.Count;
 			var array = Array.CreateInstance(type, count);
-			for (int index = 0; index < count; index++)
+			for (var index = 0; index < count; index++)
 				array.SetValue(ConvertCapture(captures[index], type), index);
 			return array;
 		}
@@ -166,22 +165,22 @@ namespace RegexMatchValues
 		{
 			var parsers = new Dictionary<Type, Func<string, CultureInfo, object>>();
 
-			void addParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c)!);
-
-			addParser(byte.Parse);
-			addParser(sbyte.Parse);
-			addParser(short.Parse);
-			addParser(ushort.Parse);
-			addParser(int.Parse);
-			addParser(uint.Parse);
-			addParser(long.Parse);
-			addParser(ulong.Parse);
-			addParser(float.Parse);
-			addParser(double.Parse);
-			addParser(decimal.Parse);
-			addParser((v, _) => Guid.Parse(v));
+			AddParser(byte.Parse);
+			AddParser(sbyte.Parse);
+			AddParser(short.Parse);
+			AddParser(ushort.Parse);
+			AddParser(int.Parse);
+			AddParser(uint.Parse);
+			AddParser(long.Parse);
+			AddParser(ulong.Parse);
+			AddParser(float.Parse);
+			AddParser(double.Parse);
+			AddParser(decimal.Parse);
+			AddParser((v, _) => Guid.Parse(v));
 
 			return parsers;
+
+			void AddParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c)!);
 		}
 	}
 }

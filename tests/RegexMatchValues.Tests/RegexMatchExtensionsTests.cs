@@ -205,13 +205,13 @@ namespace RegexMatchValues.Tests
 		[Test]
 		public void AddInPlace()
 		{
-			string addPairs(Match match)
+			static string AddPairs(Match match)
 			{
-				(int first, int second) = match.Get<(int, int)>();
+				var (first, second) = match.Get<(int, int)>();
 				return $"{first + second}";
 			}
 
-			Regex.Replace("1+2 3+4 5+6", @"([0-9]+)\+([0-9]+)", addPairs).Should().Be("3 7 11");
+			Regex.Replace("1+2 3+4 5+6", @"([0-9]+)\+([0-9]+)", AddPairs).Should().Be("3 7 11");
 		}
 
 		[Test]
@@ -223,7 +223,7 @@ namespace RegexMatchValues.Tests
 		[Test]
 		public void CapturesAsIntegers()
 		{
-			(bool match, int[] numbers) = Regex.Match("find 1 2 3 5 8", @"(([0-9]+)\s*)+").Get<(bool, int[])>();
+			var (match, numbers) = Regex.Match("find 1 2 3 5 8", @"(([0-9]+)\s*)+").Get<(bool, int[])>();
 			match.Should().BeTrue();
 			numbers.Should().Equal(1, 2, 3, 5, 8);
 		}
