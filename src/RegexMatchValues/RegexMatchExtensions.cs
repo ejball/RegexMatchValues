@@ -43,7 +43,18 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value of the specified type.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The match failed, or the specified type is not supported.</exception>
-		public static T Get<T>(this Match match) => match.TryGet<T>(out var value) ? value! : throw new InvalidOperationException("Match failed.");
+		public static T Get<T>(this Match match) => match.Get<T>(Array.Empty<string>());
+
+		/// <summary>
+		/// Returns a value of the specified type for the match.
+		/// </summary>
+		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
+		/// <param name="match">The match.</param>
+		/// <param name="groupNames">The group names to return.</param>
+		/// <returns>The corresponding value of the specified type.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The match failed, or the specified type is not supported.</exception>
+		public static T Get<T>(this Match match, params string[] groupNames) => match.TryGet<T>(groupNames, out var value) ? value! : throw new InvalidOperationException("Match failed.");
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -54,7 +65,19 @@ namespace RegexMatchValues
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 		[return: MaybeNull]
-		public static T TryGet<T>(this Match match) => match.TryGet<T>(out var value) ? value : default;
+		public static T TryGet<T>(this Match match) => match.TryGet<T>(Array.Empty<string>());
+
+		/// <summary>
+		/// Attempts to return a value of the specified type for the match.
+		/// </summary>
+		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
+		/// <param name="match">The match.</param>
+		/// <param name="groupNames">The group names to return.</param>
+		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
+		[return: MaybeNull]
+		public static T TryGet<T>(this Match match, params string[] groupNames) => match.TryGet<T>(groupNames, out var value) ? value : default;
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -65,38 +88,74 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		public static bool TryGet<T>(this Match match, [MaybeNull] out T value)
+		public static bool TryGet<T>(this Match match, [MaybeNull] out T value) => match.TryGet(Array.Empty<string>(), out value);
+
+		/// <summary>
+		/// Attempts to return a value of the specified type for the match.
+		/// </summary>
+		/// <typeparam name="T">The desired type. See <see cref="RegexMatchExtensions"/> for supported types.</typeparam>
+		/// <param name="match">The match.</param>
+		/// <param name="groupNames">The group names to return.</param>
+		/// <param name="value">The returned value.</param>
+		/// <returns>True if the match was successful; false otherwise.</returns>
+		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
+		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
+		public static bool TryGet<T>(this Match match, string[] groupNames, [MaybeNull] out T value)
 		{
-			if (match.Success)
-			{
-				var type = typeof(T);
-				if (TupleInfo.IsTupleType(type))
-				{
-					var tupleInfo = TupleInfo.GetInfo(type);
-					var tupleTypes = tupleInfo.ItemTypes;
-					var count = tupleTypes.Count;
-					if (count < 2)
-						throw new InvalidOperationException($"Tuple must have at least two types: {type.FullName}");
-					if (match.Groups.Count < count + 1)
-						throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
+			if (match is null)
+				throw new ArgumentNullException(nameof(match));
 
-					var items = new object?[count];
-					for (var index = 0; index < count; index++)
-						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
-					value = (T) tupleInfo.CreateNew(items);
-				}
-				else
-				{
-					value = (T) ConvertGroup(match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0], type)!;
-				}
-
-				return true;
-			}
-			else
+			if (!match.Success)
 			{
 				value = default!;
 				return false;
 			}
+
+			var groupNameCount = (groupNames ?? throw new ArgumentNullException(nameof(groupNames))).Length;
+
+			var type = typeof(T);
+			if (TupleInfo.IsTupleType(type))
+			{
+				var tupleInfo = TupleInfo.GetInfo(type);
+				var tupleTypes = tupleInfo.ItemTypes;
+				var count = tupleTypes.Count;
+				if (count < 2)
+					throw new InvalidOperationException($"Tuple must have at least two types: {type.FullName}");
+
+				var items = new object?[count];
+
+				if (groupNameCount != 0)
+				{
+					if (groupNameCount != count)
+						throw new InvalidOperationException($"There must be the same number of group names as tuple values ({count}).");
+
+					for (var index = 0; index < count; index++)
+						items[index] = ConvertGroup(match.Groups[groupNames[index]], tupleTypes[index]);
+				}
+				else
+				{
+					if (match.Groups.Count < count + 1)
+						throw new InvalidOperationException($"Regex must have at least {count} capturing groups; it has {match.Groups.Count - 1}.");
+
+					for (var index = 0; index < count; index++)
+						items[index] = ConvertGroup(match.Groups[index + 1], tupleTypes[index]);
+				}
+
+				value = (T) tupleInfo.CreateNew(items);
+			}
+			else if (groupNameCount != 0)
+			{
+				if (groupNameCount != 1)
+					throw new InvalidOperationException("There must be exactly one group name for the specified type.");
+
+				value = (T) ConvertGroup(match.Groups[groupNames[0]], type)!;
+			}
+			else
+			{
+				value = (T) ConvertGroup(match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0], type)!;
+			}
+
+			return true;
 		}
 
 		private static object? ConvertGroup(Group group, Type type)

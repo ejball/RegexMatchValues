@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.1.0
+
+* Support named groups.
+
 ## 1.0.0
 
 * `Get` throws on failed match; `TryGet` does not.
