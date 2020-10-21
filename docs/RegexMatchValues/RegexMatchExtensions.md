@@ -10,8 +10,8 @@ public static class RegexMatchExtensions
 
 | name | description |
 | --- | --- |
-| static [Get&lt;T&gt;](RegexMatchExtensions/Get.md)(…) | Returns a value of the specified type for the match. |
-| static [TryGet&lt;T&gt;](RegexMatchExtensions/TryGet.md)(…) | Attempts to return a value of the specified type for the match. (2 methods) |
+| static [Get&lt;T&gt;](RegexMatchExtensions/Get.md)(…) | Returns a value of the specified type for the match. (2 methods) |
+| static [TryGet&lt;T&gt;](RegexMatchExtensions/TryGet.md)(…) | Attempts to return a value of the specified type for the match. (4 methods) |
 
 ## Remarks
 

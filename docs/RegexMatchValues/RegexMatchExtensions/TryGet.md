@@ -1,4 +1,4 @@
-# RegexMatchExtensions.TryGet&lt;T&gt; method (1 of 2)
+# RegexMatchExtensions.TryGet&lt;T&gt; method (1 of 4)
 
 Attempts to return a value of the specified type for the match.
 
@@ -29,7 +29,39 @@ The corresponding value if the match was successful; `default(T)` otherwise.
 
 ---
 
-# RegexMatchExtensions.TryGet&lt;T&gt; method (2 of 2)
+# RegexMatchExtensions.TryGet&lt;T&gt; method (2 of 4)
+
+Attempts to return a value of the specified type for the match.
+
+```csharp
+public static T TryGet<T>(this Match match, params string[] groupNames)
+```
+
+| parameter | description |
+| --- | --- |
+| T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
+| match | The match. |
+| groupNames | The group names to return. |
+
+## Return Value
+
+The corresponding value if the match was successful; `default(T)` otherwise.
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The specified type is not supported. |
+
+## See Also
+
+* class [RegexMatchExtensions](../RegexMatchExtensions.md)
+* namespace [RegexMatchValues](../../RegexMatchValues.md)
+
+---
+
+# RegexMatchExtensions.TryGet&lt;T&gt; method (3 of 4)
 
 Attempts to return a value of the specified type for the match.
 
@@ -41,6 +73,39 @@ public static bool TryGet<T>(this Match match, out T value)
 | --- | --- |
 | T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
 | match | The match. |
+| value | The returned value. |
+
+## Return Value
+
+True if the match was successful; false otherwise.
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The specified type is not supported. |
+
+## See Also
+
+* class [RegexMatchExtensions](../RegexMatchExtensions.md)
+* namespace [RegexMatchValues](../../RegexMatchValues.md)
+
+---
+
+# RegexMatchExtensions.TryGet&lt;T&gt; method (4 of 4)
+
+Attempts to return a value of the specified type for the match.
+
+```csharp
+public static bool TryGet<T>(this Match match, string[] groupNames, out T value)
+```
+
+| parameter | description |
+| --- | --- |
+| T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
+| match | The match. |
+| groupNames | The group names to return. |
 | value | The returned value. |
 
 ## Return Value

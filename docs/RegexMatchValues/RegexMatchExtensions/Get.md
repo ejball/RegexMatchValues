@@ -1,4 +1,4 @@
-# RegexMatchExtensions.Get&lt;T&gt; method
+# RegexMatchExtensions.Get&lt;T&gt; method (1 of 2)
 
 Returns a value of the specified type for the match.
 
@@ -10,6 +10,38 @@ public static T Get<T>(this Match match)
 | --- | --- |
 | T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
 | match | The match. |
+
+## Return Value
+
+The corresponding value of the specified type.
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| FormatException | The text of the capture cannot be parsed as the specified type. |
+| InvalidOperationException | The match failed, or the specified type is not supported. |
+
+## See Also
+
+* class [RegexMatchExtensions](../RegexMatchExtensions.md)
+* namespace [RegexMatchValues](../../RegexMatchValues.md)
+
+---
+
+# RegexMatchExtensions.Get&lt;T&gt; method (2 of 2)
+
+Returns a value of the specified type for the match.
+
+```csharp
+public static T Get<T>(this Match match, params string[] groupNames)
+```
+
+| parameter | description |
+| --- | --- |
+| T | The desired type. See [`RegexMatchExtensions`](../RegexMatchExtensions.md) for supported types. |
+| match | The match. |
+| groupNames | The group names to return. |
 
 ## Return Value
 
