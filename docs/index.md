@@ -26,4 +26,14 @@ else
     Console.WriteLine("No fraction found.");
 ```
 
+To use named capturing groups, specify each group name in the order they should appear in the tuple. [(Try it!)](https://dotnetfiddle.net/78heXi)
+
+```csharp
+var text = "Use 22/7 for pi.";
+var (denominator, numerator) =
+    Regex.Match(text, @"(?<nu>\d+)/(?<de>\d+)").Get<(int, int)>("de", "nu");
+Console.WriteLine((double) numerator / denominator);
+// output: 3.142857142857143
+```
+
 Other types besides tuples are also supported. See the [remarks](RegexMatchValues/RegexMatchExtensions.md) in the documentation for the full details.
