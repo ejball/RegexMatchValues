@@ -88,7 +88,7 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		public static bool TryGet<T>(this Match match, [MaybeNull] out T value) => match.TryGet(Array.Empty<string>(), out value);
+		public static bool TryGet<T>(this Match match, [MaybeNullWhen(returnValue: false)] out T value) => match.TryGet(Array.Empty<string>(), out value);
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -100,7 +100,7 @@ namespace RegexMatchValues
 		/// <returns>True if the match was successful; false otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		public static bool TryGet<T>(this Match match, string[] groupNames, [MaybeNull] out T value)
+		public static bool TryGet<T>(this Match match, string[] groupNames, [MaybeNullWhen(returnValue: false)] out T value)
 		{
 			if (match is null)
 				throw new ArgumentNullException(nameof(match));

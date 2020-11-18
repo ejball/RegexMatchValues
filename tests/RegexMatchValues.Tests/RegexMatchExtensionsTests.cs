@@ -13,14 +13,22 @@ namespace RegexMatchValues.Tests
 		[Test]
 		public void StringFailedMatch()
 		{
-			Regex.Match("expressions", "c+").TryGet<string>().Should().BeNull();
+			Regex.Match("expressions", "c+").TryGet<string?>().Should().BeNull();
 			Invoking(() => Regex.Match("expressions", "c+").Get<string>()).Should().Throw<InvalidOperationException>();
+
+			Regex.Match("expressions", "c+").TryGet<string?>(out var value).Should().BeFalse();
+			value.Should().BeNull();
 		}
 
 		[Test]
 		public void StringNoGroupMatch()
 		{
 			Regex.Match("expressions", "s+").Get<string>().Should().Be("ss");
+
+			if (Regex.Match("expressions", "s+").TryGet<string>(out var value))
+				value.Should().Be("ss");
+			else
+				Assert.Fail();
 		}
 
 		[Test]
