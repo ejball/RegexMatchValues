@@ -24,6 +24,7 @@ if (Regex.Match(text, @"(\d+)/(\d+)").TryGet(out (int N, int D) fraction))
     Console.WriteLine((double) fraction.N / fraction.D);
 else
     Console.WriteLine("No fraction found.");
+// output: No fraction found.
 ```
 
 To use named capturing groups, specify each group name in the order they should appear in the tuple. [(Try it!)](https://dotnetfiddle.net/78heXi)
