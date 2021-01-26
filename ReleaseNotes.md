@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.2.1
+
+* Update `Faithlife.Reflection`.
+
 ## 1.2.0
 
 * Fix nullable reference attribute for `bool`-returning `TryGet`.
