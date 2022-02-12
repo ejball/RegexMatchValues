@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.2.2
+
+* Use spans to parse in .NET 6.
+* Update `Faithlife.Reflection`.
+
 ## 1.2.1
 
 * Update `Faithlife.Reflection`.
