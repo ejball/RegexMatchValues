@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -64,8 +62,7 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		[return: MaybeNull]
-		public static T TryGet<T>(this Match match) => match.TryGet<T>(Array.Empty<string>());
+		public static T? TryGet<T>(this Match match) => match.TryGet<T>(Array.Empty<string>());
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -76,8 +73,7 @@ namespace RegexMatchValues
 		/// <returns>The corresponding value if the match was successful; <c>default(T)</c> otherwise.</returns>
 		/// <exception cref="FormatException">The text of the capture cannot be parsed as the specified type.</exception>
 		/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
-		[return: MaybeNull]
-		public static T TryGet<T>(this Match match, params string[] groupNames) => match.TryGet<T>(groupNames, out var value) ? value : default;
+		public static T? TryGet<T>(this Match match, params string[] groupNames) => match.TryGet<T>(groupNames, out var value) ? value : default;
 
 		/// <summary>
 		/// Attempts to return a value of the specified type for the match.
@@ -186,7 +182,7 @@ namespace RegexMatchValues
 			if (type == typeof(Capture))
 				return capture;
 
-			string value = capture.Value;
+			var value = capture.Value;
 			if (type == typeof(string))
 				return value;
 
@@ -217,8 +213,7 @@ namespace RegexMatchValues
 			throw new InvalidOperationException($"Type not supported: {type.FullName}");
 		}
 
-		private static readonly Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>> s_parsers =
-			new Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>>(CreateParsers);
+		private static readonly Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>> s_parsers = new(CreateParsers);
 
 		private static IReadOnlyDictionary<Type, Func<string, CultureInfo, object>> CreateParsers()
 		{
