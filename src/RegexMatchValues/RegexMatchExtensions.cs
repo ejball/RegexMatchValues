@@ -182,9 +182,8 @@ public static class RegexMatchExtensions
 		if (type == typeof(Capture))
 			return capture;
 
-		var value = capture.Value;
 		if (type == typeof(string))
-			return value;
+			return capture.Value;
 
 		bool isNullable;
 		var underlyingType = Nullable.GetUnderlyingType(type);
@@ -201,6 +200,7 @@ public static class RegexMatchExtensions
 		if (type == typeof(bool))
 			return true;
 
+		var value = capture.Value;
 		if (isNullable && string.IsNullOrWhiteSpace(value))
 			return null;
 
