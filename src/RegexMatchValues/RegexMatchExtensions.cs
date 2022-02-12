@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Faithlife.Reflection;
 
 namespace RegexMatchValues;
 
