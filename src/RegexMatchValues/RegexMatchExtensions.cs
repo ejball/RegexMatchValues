@@ -199,40 +199,44 @@ public static class RegexMatchExtensions
 		if (type == typeof(bool))
 			return true;
 
+#if NET6_0_OR_GREATER
+		var value = capture.ValueSpan;
+		if (isNullable && value.Trim().Length == 0)
+			return null;
+#else
 		var value = capture.Value;
 		if (isNullable && string.IsNullOrWhiteSpace(value))
 			return null;
+#endif
 
-		if (s_parsers.Value.TryGetValue(type, out var parser))
-			return parser(value, CultureInfo.InvariantCulture);
+		if (type == typeof(int))
+			return int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(long))
+			return long.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(short))
+			return short.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(byte))
+			return byte.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(double))
+			return double.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(float))
+			return float.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(decimal))
+			return decimal.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(Guid))
+			return Guid.Parse(value);
+		if (type == typeof(uint))
+			return uint.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(ulong))
+			return ulong.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(ushort))
+			return ushort.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		if (type == typeof(sbyte))
+			return sbyte.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
 		if (type.IsEnum)
 			return Enum.Parse(type, value, ignoreCase: true);
 
 		throw new InvalidOperationException($"Type not supported: {type.FullName}");
-	}
-
-	private static readonly Lazy<IReadOnlyDictionary<Type, Func<string, CultureInfo, object>>> s_parsers = new(CreateParsers);
-
-	private static IReadOnlyDictionary<Type, Func<string, CultureInfo, object>> CreateParsers()
-	{
-		var parsers = new Dictionary<Type, Func<string, CultureInfo, object>>();
-
-		AddParser(byte.Parse);
-		AddParser(sbyte.Parse);
-		AddParser(short.Parse);
-		AddParser(ushort.Parse);
-		AddParser(int.Parse);
-		AddParser(uint.Parse);
-		AddParser(long.Parse);
-		AddParser(ulong.Parse);
-		AddParser(float.Parse);
-		AddParser(double.Parse);
-		AddParser(decimal.Parse);
-		AddParser((v, _) => Guid.Parse(v));
-
-		return parsers;
-
-		void AddParser<T>(Func<string, CultureInfo, T> parser) => parsers.Add(typeof(T), (v, c) => parser(v, c)!);
 	}
 }
