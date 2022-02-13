@@ -3,7 +3,7 @@
 Attempts to return a value of the specified type for the match.
 
 ```csharp
-public static T TryGet<T>(this Match match)
+public static T? TryGet<T>(this Match match)
 ```
 
 | parameter | description |
@@ -34,7 +34,7 @@ The corresponding value if the match was successful; `default(T)` otherwise.
 Attempts to return a value of the specified type for the match.
 
 ```csharp
-public static T TryGet<T>(this Match match, params string[] groupNames)
+public static T? TryGet<T>(this Match match, params string[] groupNames)
 ```
 
 | parameter | description |
