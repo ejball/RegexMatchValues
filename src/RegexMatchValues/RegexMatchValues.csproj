@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <Description>Converts regular expression matches to strong types.</Description>
     <PackageTags>regex regular expression match group capture convert</PackageTags>
     <IsPackable>true</IsPackable>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Faithlife.Reflection" Version="1.1.0" />
+    <PackageReference Include="Faithlife.Reflection" Version="1.2.1" />
   </ItemGroup>
 
 </Project>

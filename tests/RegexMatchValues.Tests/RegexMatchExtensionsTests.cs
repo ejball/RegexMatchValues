@@ -233,7 +233,7 @@ public class RegexMatchExtensionsTests
 	[Test]
 	public void Matches()
 	{
-		Regex.Matches("867-5309", "[0-9]+").Select(x => x.Get<int>()).Should().Equal(867, 5309);
+		Regex.Matches("867-5309", "[0-9]+").Cast<Match>().Select(x => x.Get<int>()).Should().Equal(867, 5309);
 	}
 
 	[Test]
