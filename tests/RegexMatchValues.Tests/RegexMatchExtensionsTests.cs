@@ -1,12 +1,10 @@
 using System.Text.RegularExpressions;
-using FluentAssertions;
-using NUnit.Framework;
 using static FluentAssertions.FluentActions;
 
 namespace RegexMatchValues.Tests;
 
 [TestFixture]
-public class RegexMatchExtensionsTests
+internal sealed class RegexMatchExtensionsTests
 {
 	[Test]
 	public void StringFailedMatch()
@@ -50,7 +48,7 @@ public class RegexMatchExtensionsTests
 	[Test]
 	public void StringEmptyMatch()
 	{
-		Regex.Match("hello there", @"l()l").Get<string>().Should().Be("");
+		Regex.Match("hello there", "l()l").Get<string>().Should().Be("");
 	}
 
 	[Test]
@@ -105,38 +103,38 @@ public class RegexMatchExtensionsTests
 	[Test]
 	public void IntegerFormatException()
 	{
-		Invoking(() => Regex.Match("x 0xDEAD x", @"x(.*)x").Get<int?>()).Should().Throw<FormatException>();
+		Invoking(() => Regex.Match("x 0xDEAD x", "x(.*)x").Get<int?>()).Should().Throw<FormatException>();
 	}
 
 	[Test]
 	public void IntegerEmpty()
 	{
-		Invoking(() => Regex.Match("xx", @"x(.*)x").Get<int>()).Should().Throw<FormatException>();
-		Regex.Match("xx", @"x(.*)x").Get<int?>().Should().Be(null);
-		Invoking(() => Regex.Match("xxx", @"x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
-		Regex.Match("xxx", @"x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
+		Invoking(() => Regex.Match("xx", "x(.*)x").Get<int>()).Should().Throw<FormatException>();
+		Regex.Match("xx", "x(.*)x").Get<int?>().Should().Be(null);
+		Invoking(() => Regex.Match("xxx", "x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
+		Regex.Match("xxx", "x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
 	}
 
 	[Test]
 	public void IntegerOnlyWhitespace()
 	{
-		Invoking(() => Regex.Match("x x", @"x(.*)x").Get<int>()).Should().Throw<FormatException>();
-		Regex.Match("x x", @"x(.*)x").Get<int?>().Should().Be(null);
-		Invoking(() => Regex.Match("x x x", @"x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
-		Regex.Match("x x x", @"x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
+		Invoking(() => Regex.Match("x x", "x(.*)x").Get<int>()).Should().Throw<FormatException>();
+		Regex.Match("x x", "x(.*)x").Get<int?>().Should().Be(null);
+		Invoking(() => Regex.Match("x x x", "x(.*)x(.*)x").Get<(int, int)>()).Should().Throw<FormatException>();
+		Regex.Match("x x x", "x(.*)x(.*)x").Get<(int?, int?)>().Should().Be((default, default));
 	}
 
 	[Test]
 	public void IntegerWhitespaceTrimmed()
 	{
-		Regex.Match("x 42 x", @"x(.*)x").Get<int>().Should().Be(42);
-		Regex.Match("x 42 x", @"x(.*)x").Get<int?>().Should().Be(42);
+		Regex.Match("x 42 x", "x(.*)x").Get<int>().Should().Be(42);
+		Regex.Match("x 42 x", "x(.*)x").Get<int?>().Should().Be(42);
 	}
 
 	[Test]
 	public void EnumParse()
 	{
-		Regex.Match("x righttoleft x", @"x(.*)x").Get<RegexOptions?>().Should().Be(RegexOptions.RightToLeft);
+		Regex.Match("x righttoleft x", "x(.*)x").Get<RegexOptions?>().Should().Be(RegexOptions.RightToLeft);
 	}
 
 	[Test]
@@ -219,15 +217,15 @@ public class RegexMatchExtensionsTests
 	[Test]
 	public void OptionalGroups()
 	{
-		Regex.Match("ac", @"(a)(b)?(c)").Get<(string, string?, string)>().Should().Be(("a", null, "c"));
-		Regex.Match("ac", @"(a)(b?)(c)").Get<(string, string, string)>().Should().Be(("a", "", "c"));
+		Regex.Match("ac", "(a)(b)?(c)").Get<(string, string?, string)>().Should().Be(("a", null, "c"));
+		Regex.Match("ac", "(a)(b?)(c)").Get<(string, string, string)>().Should().Be(("a", "", "c"));
 	}
 
 	[Test]
 	public void BooleanValues()
 	{
-		Regex.Match("ac", @"(a)(b)?(c)").Get<(string, bool, bool)>().Should().Be(("a", false, true));
-		Regex.Match("ac", @"(a)(b?)(c)").Get<(string, bool, bool)>().Should().Be(("a", true, true));
+		Regex.Match("ac", "(a)(b)?(c)").Get<(string, bool, bool)>().Should().Be(("a", false, true));
+		Regex.Match("ac", "(a)(b?)(c)").Get<(string, bool, bool)>().Should().Be(("a", true, true));
 	}
 
 	[Test]
@@ -268,6 +266,6 @@ public class RegexMatchExtensionsTests
 		Regex.Match("find 1 2 3 5 8", @"(?:([0-9]+)\s*)+").Get<Capture[]>().Select(x => x.Value).Should().Equal("1", "2", "3", "5", "8");
 	}
 
-	private static readonly Regex s_signedIntegerRegex = new Regex(@"[-0-9]+");
-	private static readonly Regex s_unsignedIntegerRegex = new Regex(@"[0-9]+");
+	private static readonly Regex s_signedIntegerRegex = new Regex("[-0-9]+");
+	private static readonly Regex s_unsignedIntegerRegex = new Regex("[0-9]+");
 }
