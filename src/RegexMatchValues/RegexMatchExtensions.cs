@@ -97,8 +97,12 @@ public static class RegexMatchExtensions
 	/// <exception cref="InvalidOperationException">The specified type is not supported.</exception>
 	public static bool TryGet<T>(this Match match, string[] groupNames, [MaybeNullWhen(returnValue: false)] out T value)
 	{
+#if NET6_0_OR_GREATER
+		ArgumentNullException.ThrowIfNull(match);
+#else
 		if (match is null)
 			throw new ArgumentNullException(nameof(match));
+#endif
 
 		if (!match.Success)
 		{
@@ -167,7 +171,7 @@ public static class RegexMatchExtensions
 		return ConvertCapture(group, type);
 	}
 
-	private static object ConvertCaptures(CaptureCollection captures, Type type)
+	private static Array ConvertCaptures(CaptureCollection captures, Type type)
 	{
 		var count = captures.Count;
 		var array = Array.CreateInstance(type, count);
